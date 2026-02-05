@@ -3,7 +3,7 @@ from rest_framework.decorators import action
 from rest_framework.response import Response
 from django.db.models import Avg
 from .models import Estudiante
-from .serializers import EstudianteSerializer, PromedioGeneralSerializer
+from .serializers import EstudianteSerializer
 
 
 class EstudianteViewSet(viewsets.ModelViewSet):
