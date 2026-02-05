@@ -1,9 +1,11 @@
 from rest_framework import viewsets, status
-from rest_framework.decorators import action
+from rest_framework.decorators import action, api_view
 from rest_framework.response import Response
 from django.db.models import Avg
 from .models import Estudiante
 from .serializers import EstudianteSerializer
+from django.db import connection
+import time
 
 
 class EstudianteViewSet(viewsets.ModelViewSet):
@@ -77,3 +79,25 @@ class EstudianteViewSet(viewsets.ModelViewSet):
         }
 
         return Response(data, status=status.HTTP_200_OK)
+
+
+@api_view(["GET"])
+def metricas(request):
+    """Endpoint de métricas del sistema."""
+    # Medir tiempo de respuesta de la base de datos
+    start_time = time.time()
+    with connection.cursor() as cursor:
+        cursor.execute("SELECT 1")
+    db_time = round((time.time() - start_time) * 1000, 2)
+
+    # Contar registros
+    total_estudiantes = Estudiante.objects.count()
+
+    return Response(
+        {
+            "status": "healthy",
+            "database": {"status": "connected", "response_time_ms": db_time},
+            "data": {"total_estudiantes": total_estudiantes},
+            "timestamp": time.strftime("%Y-%m-%d %H:%M:%S"),
+        }
+    )
